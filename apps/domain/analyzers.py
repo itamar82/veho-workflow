@@ -37,7 +37,7 @@ class SuspiciousTimestampPushEventAnalyzer(EventAnalyzerBase):
 class SuspiciousTeamNameCreatedEventAnalyzer(EventAnalyzerBase):
     def __init__(self, starts_with: str):
         super().__init__()
-        self.starts_with = starts_with
+        self.starts_with = starts_with.lower()
 
     def analyze(
         self, event: TeamEventEntity, uow: AbstractUnitOfWork
@@ -47,7 +47,7 @@ class SuspiciousTeamNameCreatedEventAnalyzer(EventAnalyzerBase):
         if event.action != "created":
             return suspicions
 
-        if event.team.startswith(self.starts_with):
+        if event.team.lower().startswith(self.starts_with):
             suspicions.append(
                 Suspicion(
                     f"Suspicious team name '{event.team}' added to repository '{event.repository}' at {event.timestamp}"
@@ -74,11 +74,11 @@ class SuspiciousRepositoryLifetimeEventAnalyzer(EventAnalyzerBase):
         )
         if (
             repository_created_event
-            and event.timestamp - repository_created_event.timestamp > self.lifetime
+            and event.timestamp - repository_created_event.timestamp < self.lifetime
         ):
             suspicions.append(
                 Suspicion(
-                    f"Suspicious repository lifetime for repository '{event.repository}' at {event.timestamp}"
+                    f"Suspicious repository lifetime for repository '{event.repository}' at {repository_created_event.timestamp} - {event.timestamp}"
                 )
             )
 
