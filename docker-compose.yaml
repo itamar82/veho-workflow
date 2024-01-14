@@ -1,11 +1,11 @@
 version: "3.7"
 
 x-environment-debug: &env-dev
-  DEBUG: 1
+  DEBUG: "true"
   GUNICORN_LOG_LEVEL: INFO
 
 x-environment-prod: &env-prod
-  DEBUG: 0
+  DEBUG: "false"
   GUNICORN_LOG_LEVEL: WARNING
 
 services:

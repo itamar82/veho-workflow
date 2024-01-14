@@ -13,9 +13,7 @@ class DatabaseManager:
 
     @classmethod
     def init(cls):
-        cls.engine = create_engine(
-            "sqlite+pysqlite:///./hooks.db", echo=bool(getenv("DEBUG", False))
-        )
+        cls.engine = create_engine("sqlite+pysqlite:///./hooks.db")
         cls.session_factory = sessionmaker(
             cls.engine,
             autocommit=False,
