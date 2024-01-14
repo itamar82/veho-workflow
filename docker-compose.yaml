@@ -1,0 +1,71 @@
+version: "3.7"
+
+services:
+
+  devbox: &devbox
+    build:
+      dockerfile: ./docker/devbox.dockerfile
+      context: .
+    image: legit-gh-hooks/devbox
+    environment:
+      GUNICORN_PORT: 5000
+      GUNICORN_WORKERS: 2
+
+    volumes:
+      - "./:/app"
+    command: "service"
+    depends_on:
+      - ngrok
+    ports:
+      - 5000:5000
+    networks:
+      - legit-gh-hooks
+
+
+########################################
+#
+# Development Services
+#
+########################################
+
+  # Run the test & lint suite in a dedicated container
+  test: &test-base
+    <<: *devbox
+    command: "/bin/bash"
+    depends_on: [ ]
+    volumes:
+      - "./:/app"
+
+
+
+########################################
+#
+# External Service / Dependencies
+#
+########################################
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    restart: unless-stopped
+    command:
+      - "start"
+      - "--all"
+      - "--config"
+      - "/etc/ngrok.yml"
+    volumes:
+      - ./docker/files/ngrok.yml:/etc/ngrok.yml
+    ports:
+      - 4040:4040
+
+
+
+
+volumes:
+  home:
+  db:
+    driver: local
+  data:
+    driver: local
+
+networks:
+  legit-gh-hooks:

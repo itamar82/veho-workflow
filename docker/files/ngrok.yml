@@ -1,0 +1,6 @@
+authtoken: 2awjQVx7A8NXcv6wGzCSRH3jg82_79D46uQXv7BnajfFTexKi
+version: 2
+tunnels:
+  example:
+    proto: http
+    addr: localhost:5000

@@ -1,0 +1,18 @@
+# global
+pytz==2023.3
+pydantic~=2.5
+pydantic-collections~=0.5
+pyjwt[crypto]==2.8.0
+dependency-injector~=4.41
+
+# cli
+requests==2.31.0
+scheduler==0.8.4
+
+# fastapi
+fastapi~=0.109
+gunicorn[gevent]==21.2.0
+uvicorn[standard]~=0.25
+pyngrok~=7.0
+
+
