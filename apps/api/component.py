@@ -24,6 +24,8 @@ def create_app():
     container.wire(packages=["apps.api"])
     app.state.container = container
 
+    add_routes(app)
+
     return app
 
 
