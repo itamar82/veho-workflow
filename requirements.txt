@@ -4,6 +4,8 @@ pydantic~=2.5
 pydantic-collections~=0.5
 pyjwt[crypto]==2.8.0
 dependency-injector~=4.41
+sqlalchemy~=2.0
+
 
 # cli
 requests==2.31.0

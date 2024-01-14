@@ -21,7 +21,7 @@ def create_app():
     )
 
     container = Container()
-    container.wire(packages=["apps.api"])
+    container.wire(packages=["apps.api", "apps.service_layer", "apps.utilities"])
     app.state.container = container
 
     add_routes(app)
@@ -36,8 +36,11 @@ def add_routes(app: FastAPI):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # await app.state.container.init_resources()
+    try:
+        app.state.container.init_resources()
 
-    yield
+        yield
 
-    # await app.state.container.shutdown_resources()
+        app.state.container.shutdown_resources()
+    except Exception as e:
+        logger.exception("oops", exc_info=e)
