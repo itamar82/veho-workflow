@@ -16,10 +16,28 @@ class AbstractRepositoryEventsRepository(abc.ABC):
     def get_by_github_uuid(self, github_uuid: str) -> Optional[RepositoryEventEntity]:
         pass
 
+    @abc.abstractmethod
+    def get_repository_created_event(
+        self, repository: str
+    ) -> Optional[RepositoryEventEntity]:
+        pass
+
 
 class SqlAlchemyRepositoryEventsRepository(AbstractRepositoryEventsRepository):
     def __init__(self, session: Session):
         self.session = session
+
+    def get_repository_created_event(
+        self, repository: str
+    ) -> Optional[RepositoryEventEntity]:
+        entity = self.session.scalar(
+            select(RepositoryEventEntity).where(
+                RepositoryEventEntity.repository == repository,
+                RepositoryEventEntity.action == "created",
+            )
+        )
+
+        return entity
 
     def get_by_github_uuid(self, github_uuid: str) -> Optional[RepositoryEventEntity]:
         entity = self.session.scalar(

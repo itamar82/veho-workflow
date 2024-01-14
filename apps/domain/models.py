@@ -3,30 +3,28 @@ from datetime import datetime
 
 
 @dataclass
-class PushEventEntity:
-    id: int = field(init=False)
+class EventEntityBase:
     github_uuid: str
     timestamp: datetime
-    pusher: str
     repository: str
 
 
 @dataclass
-class RepositoryEventEntity:
+class PushEventEntity(EventEntityBase):
     id: int = field(init=False)
-    github_uuid: str
-    timestamp: datetime
+    pusher: str
+
+
+@dataclass
+class RepositoryEventEntity(EventEntityBase):
+    id: int = field(init=False)
     sender: str
-    repository: str
     action: str
 
 
 @dataclass
-class TeamEventEntity:
+class TeamEventEntity(EventEntityBase):
     id: int = field(init=False)
-    github_uuid: str
-    timestamp: datetime
     sender: str
-    repository: str
     team: str
     action: str

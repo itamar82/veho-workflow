@@ -4,7 +4,7 @@ from typing import Optional
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from apps.domain.models import RepositoryEventEntity, TeamEventEntity
+from apps.domain.models import TeamEventEntity
 
 
 class AbstractTeamEventsRepository(abc.ABC):
@@ -28,5 +28,5 @@ class SqlAlchemyTeamEventsRepository(AbstractTeamEventsRepository):
 
         return entity
 
-    def add(self, entity: RepositoryEventEntity):
+    def add(self, entity: TeamEventEntity):
         self.session.add(entity)

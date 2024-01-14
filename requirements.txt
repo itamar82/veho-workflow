@@ -9,7 +9,7 @@ sqlalchemy~=2.0
 
 # cli
 requests==2.31.0
-scheduler==0.8.4
+apscheduler~=3.10
 
 # fastapi
 fastapi~=0.109
