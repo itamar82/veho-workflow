@@ -20,7 +20,7 @@ As webhooks are sent to the system, console will output any suspicious activity
 
 ### Configuring Github
 
-Follow instructions on how to configure github webhooks. The endpoint is /hooks/payload
+Follow instructions on how to configure github webhooks.
 
 
 
