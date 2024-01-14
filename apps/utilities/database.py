@@ -1,3 +1,4 @@
+from os import getenv
 from typing import Callable
 
 from sqlalchemy import Engine, create_engine
@@ -12,7 +13,9 @@ class DatabaseManager:
 
     @classmethod
     def init(cls):
-        cls.engine = create_engine("sqlite+pysqlite:///./hooks.db", echo=True)
+        cls.engine = create_engine(
+            "sqlite+pysqlite:///./hooks.db", echo=bool(getenv("DEBUG", False))
+        )
         cls.session_factory = sessionmaker(
             cls.engine,
             autocommit=False,

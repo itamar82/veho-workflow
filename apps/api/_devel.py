@@ -1,3 +1,5 @@
+from os import getenv
+
 import uvicorn
 
 from apps.api.component import create_app
@@ -10,5 +12,6 @@ if __name__ == "__main__":
         host="0.0.0.0",  # nosec: B104
         port=5000,
         reload=True,
-        reload_dirs=["components", "settings"],
+        reload_dirs=["apps"],
+        log_level="info" if getenv("DEBUG", False) else "warning",
     )

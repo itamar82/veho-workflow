@@ -1,5 +1,6 @@
 import logging
 from contextlib import asynccontextmanager
+from os import getenv
 from typing import List
 
 from fastapi import FastAPI
@@ -17,7 +18,7 @@ def create_app():
         title="Github Webhook Processor API",
         description="Consumes webhooks from Github for anomaly detection",
         lifespan=lifespan,
-        debug=True,
+        debug=bool(getenv("DEBUG", False)),
     )
 
     container = Container()

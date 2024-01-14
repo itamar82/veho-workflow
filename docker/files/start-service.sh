@@ -7,7 +7,7 @@ if [[ $# == 0 ]]; then
     -b ":${GUNICORN_PORT:-5000}" \
     -w "${GUNICORN_WORKERS:-2}" \
     -k "${GUNICORN_WORKER_CLASS:-gevent}" \
-    --log-level="${GUNICORN_LOG_LEVEL:-INFO}" \
+    --log-level="${GUNICORN_LOG_LEVEL:-WARNING}" \
     --worker-connections="${GUNICORN_WORKER_CONNECTIONS:-5000}" \
     --max-requests="${GUNICORN_MAX_REQUESTS:-5000}" \
     --max-requests-jitter="${GUNICORN_MAX_REQUESTS_JITTER:-500}"

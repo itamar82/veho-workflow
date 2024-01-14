@@ -1,12 +1,23 @@
 version: "3.7"
 
+x-environment-debug: &env-dev
+  DEBUG: 1
+  GUNICORN_LOG_LEVEL: INFO
+
+x-environment-prod: &env-prod
+  DEBUG: 0
+  GUNICORN_LOG_LEVEL: WARNING
+
 services:
+
 
   devbox: &devbox
     build:
       dockerfile: ./docker/devbox.dockerfile
       context: .
     image: legit-gh-hooks/devbox
+    environment:
+      <<: *env-dev
     volumes:
       - "./:/app"
     command: "service"
@@ -16,6 +27,13 @@ services:
       - 5000:5000
     networks:
       - legit-gh-hooks
+
+
+  service:
+    <<: *devbox
+    environment:
+      <<: *env-prod
+
 
 
 ########################################
