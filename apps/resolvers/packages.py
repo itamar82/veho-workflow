@@ -3,7 +3,6 @@ from graphql import GraphQLResolveInfo
 
 from apps.dataloaders import PalletReferenceLoader
 from apps.resolvers.dtos import PackageDto
-from apps.services.repository import WmsRepository
 
 package_type = ObjectType("Package")
 
@@ -13,7 +12,7 @@ async def resolve_package_pallet(representation: PackageDto, info: GraphQLResolv
     if PalletReferenceLoader.CACHE_KEY() not in info.context:
         info.context[PalletReferenceLoader.CACHE_KEY()] = PalletReferenceLoader(
             warehouse_id=representation.warehouse.id,
-            repository=WmsRepository(session=info.context.session),
+            repository=info.context.repository,
         )
 
     return await info.context[PalletReferenceLoader.CACHE_KEY()].load(

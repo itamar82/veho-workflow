@@ -18,10 +18,11 @@ logger = logging.getLogger(__name__)
 
 
 def get_context_value(request: Request):
-    return TransactionalGraphQLContext(
+    context = TransactionalGraphQLContext(
         request=request,
         session=Session(bind=db.engine, autoflush=False, autocommit=False),
     )
+    return context
 
 
 class TransactionalGraphQL(GraphQLHTTPHandler):

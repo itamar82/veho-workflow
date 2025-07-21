@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 def resolve_induct_packages_mutation(
     _, info: GraphQLResolveInfo, package_induction: InductPackagesInputDto
 ):
-    repository = WmsRepository(info.context.session)
+    repository: WmsRepository = info.context.repository
 
     warehouse = repository.load_warehouse_by_id(
         warehouse_id=package_induction.warehouse_id
@@ -46,7 +46,7 @@ def resolve_induct_packages_mutation(
 def resolve_stow_packages_mutation(
     _, info: GraphQLResolveInfo, package_stow: StowPackagesInputDto
 ):
-    repository = WmsRepository(info.context.session)
+    repository: WmsRepository = info.context.repository
 
     warehouse = repository.load_warehouse_by_id(warehouse_id=package_stow.warehouse_id)
     if not warehouse:

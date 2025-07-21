@@ -4,6 +4,8 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 from starlette.requests import Request
 
+from apps.services.repository import WmsRepository
+
 logger = logging.getLogger(__name__)
 
 
@@ -14,6 +16,7 @@ class TransactionalGraphQLContext(dict):
         super().__init__()
         self.request = request
         self.session = session
+        self.repository = WmsRepository(session)
         self._transaction_active = False
         self._committed = False
         self._rolled_back = False

@@ -1,9 +1,7 @@
-import uuid
-
 from sqlalchemy import Engine, select
 from sqlalchemy.orm import Session
 
-from .entities import Package, PackageStatus, Warehouse, Location
+from .entities import Location, Package, PackageStatus, Warehouse
 
 
 def seed_db(engine: Engine):

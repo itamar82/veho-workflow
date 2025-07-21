@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 def resolve_get_packages_by_ids(
     _, info: GraphQLResolveInfo, warehouse_id: str, package_ids: list[str]
 ):
-    repository = WmsRepository(session=info.context.session)
+    repository: WmsRepository = info.context.repository
 
     packages = repository.load_packages_by_ids(
         warehouse_id=warehouse_id, package_ids=package_ids
@@ -32,7 +32,7 @@ def resolve_get_packages_by_ids(
 def resolve_get_pallets_by_ids(
     _, info: GraphQLResolveInfo, warehouse_id: str, pallet_ids: list[str]
 ):
-    repository = WmsRepository(session=info.context.session)
+    repository: WmsRepository = info.context.repository
 
     pallets = repository.load_pallets_by_ids(
         warehouse_id=warehouse_id, pallet_ids=pallet_ids
@@ -46,7 +46,7 @@ def resolve_get_pallets_by_ids(
 def resolve_get_pallets_by_location(
     _, info: GraphQLResolveInfo, warehouse_id: str, location_id: str
 ):
-    repository = WmsRepository(session=info.context.session)
+    repository: WmsRepository = info.context.repository
 
     pallets = repository.load_pallets_by_location(
         warehouse_id=warehouse_id, location_id=location_id
