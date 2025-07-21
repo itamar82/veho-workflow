@@ -13,6 +13,11 @@ docker compose up devbox
 This starts up an HTTP server on port 8000 with graphql endpoint at
 http://localhost:8000/graphql. Accessing with a browser will render a GraphiQL playground. 
 
+* this implementation uses sqlite for data peristence located at [wms.db](./wms.db)
+* upon service start the db will be recreated and reseeded.
+  * to prevent re-creation/re-seeding of the db, set the environment variable `SEED_DB` to `false` [here](https://github.com/itamar82/veho-workflow/blob/2c3a1a43addeef9c640f97b27856ba7533aac1b8/docker-compose.yaml#L5-L5)
+
+
 
 ### Tests
 

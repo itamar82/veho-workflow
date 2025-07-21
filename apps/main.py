@@ -71,12 +71,13 @@ async def lifespan(app: FastAPI):
     try:
         orm.start_mappers()
 
-        # orm.mapper_registry.metadata.drop_all(bind=db.engine, checkfirst=True)
-        orm.mapper_registry.metadata.create_all(bind=db.engine, checkfirst=True)
+        if bool(getenv("SEED_DB", True)):
+            orm.mapper_registry.metadata.drop_all(bind=db.engine, checkfirst=True)
+            orm.mapper_registry.metadata.create_all(bind=db.engine, checkfirst=True)
 
-        # from apps.db.seed import seed_db
-        #
-        # seed_db(db.engine)
+            from apps.db.seed import seed_db
+
+            seed_db(db.engine)
 
         yield
 

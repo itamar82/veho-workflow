@@ -2,6 +2,7 @@
 x-environment-debug: &env-dev
   DEBUG: "true"
   GUNICORN_LOG_LEVEL: INFO
+  SEED_DB: "true"
 
 services:
 
