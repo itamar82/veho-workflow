@@ -24,7 +24,7 @@ def initialize_mappers():
         locations_table,
         properties={
             "id": locations_table.c.id,
-            "warehouse_id": locations_table.c.warehouse_id,
+            "warehouse": relationship("Warehouse", uselist=False, lazy="joined"),
             "zone": locations_table.c.zone,
         },
     )
@@ -34,7 +34,7 @@ def initialize_mappers():
         packages_table,
         properties={
             "id": packages_table.c.id,
-            "warehouse_id": packages_table.c.warehouse_id,
+            "warehouse": relationship("Warehouse", uselist=False, lazy="joined"),
             "received_timestamp": packages_table.c.received_timestamp,
             "status": packages_table.c.status,
             "pallet": relationship("Pallet", uselist=False, lazy="select"),
@@ -46,11 +46,11 @@ def initialize_mappers():
         pallets_table,
         properties={
             "id": pallets_table.c.id,
-            "warehouse_id": pallets_table.c.warehouse_id,
+            "warehouse": relationship("Warehouse", uselist=False, lazy="joined"),
             "packages": relationship(
                 "Package", uselist=True, lazy="select", overlaps="pallet"
             ),
-            "location_id": pallets_table.c.location_id,
+            "location": relationship("Location", uselist=False, lazy="joined"),
         },
     )
 

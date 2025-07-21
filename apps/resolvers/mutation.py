@@ -73,12 +73,10 @@ def resolve_stow_packages_mutation(
 
         pallet = Pallet(
             id=package_stow.pallet_id,
-            warehouse_id=package_stow.warehouse_id,
+            warehouse=warehouse,
             packages=[],
-            location_id=locations[0].id,  # first location
+            location=locations[0],  # first location
         )
         info.context.session.add(pallet)
 
-    workflow_services.stow_packages(
-        pallet=pallet, packages=packages, repository=repository
-    )
+    workflow_services.stow_packages(pallet=pallet, packages=packages)

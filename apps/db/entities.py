@@ -12,15 +12,15 @@ class Warehouse:
 @dataclass
 class Location:
     id: str
-    warehouse_id: str
+    warehouse: Warehouse
     zone: str
 
 
 @dataclass
 class Pallet:
     id: str
-    warehouse_id: str
-    location_id: str
+    warehouse: Warehouse
+    location: Location
     packages: list["Package"] = field(default_factory=list)
     stowed_timestamp: datetime | None = None
 
@@ -36,7 +36,7 @@ class PackageStatus(StrEnum):
 @dataclass
 class Package:
     id: str
-    warehouse_id: str
+    warehouse: Warehouse
     status: PackageStatus = PackageStatus.PENDING
     received_timestamp: datetime | None = None
     pallet: Pallet | None = None

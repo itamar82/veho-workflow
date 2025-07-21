@@ -11,13 +11,13 @@ class TestQueryResolvers:
         warehouse = Warehouse(id="wh1", name="test")
         session.add(warehouse)
 
-        location = Location(id="loc1", warehouse_id=warehouse.id, zone="RECV")
+        location = Location(id="loc1", warehouse=warehouse, zone="RECEIVING")
         session.add(location)
 
         packages = [
             Package(
                 id=f"pkg_{i}",
-                warehouse_id=warehouse.id,
+                warehouse=warehouse,
                 status=PackageStatus.PENDING,
                 received_timestamp=None,
             )
@@ -29,9 +29,9 @@ class TestQueryResolvers:
 
         pallet = Pallet(
             id="pallet_1",
-            warehouse_id=warehouse.id,
+            warehouse=warehouse,
             packages=packages[0:5],
-            location_id=location.id,
+            location=location,
         )
         session.add(pallet)
         session.flush()
@@ -102,6 +102,10 @@ class TestQueryResolvers:
                 packages {
                     id
                     status
+                }
+                location {
+                    id
+                    zone
                 }
             }
         }

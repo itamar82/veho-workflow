@@ -5,7 +5,6 @@ from aiodataloader import DataLoader
 from requests import Session
 
 from apps.resolvers.dtos import (
-    map_location_dto_from_entity,
     map_package_dto_from_entity,
     map_pallet_dto_from_entity,
     map_warehouse_dto_from_entity,
@@ -89,25 +88,3 @@ class WarehouseReferenceLoader(DataLoader):
         warehouses_by_id = {w.id: w for w in warehouses}
 
         return [map_warehouse_dto_from_entity(warehouses_by_id.get(k)) for k in keys]
-
-
-class LocationReferenceDataLoader(DataLoader):
-    _session: Session
-
-    @staticmethod
-    def CACHE_KEY():  # noqa: N802
-        return "LOCATION_REFERENCE_LOADER"
-
-    def __init__(self, warehouse_id: str, repository: WmsRepository):
-        super().__init__()
-        self._warehouse_id = warehouse_id
-        self._repository = repository
-
-    async def batch_load_fn(self, keys: Sequence[str]):
-        locations = self._repository.load_locations_by_ids(
-            warehouse_id=self._warehouse_id, location_ids=keys
-        )
-
-        locations_by_id = {loc.id: loc for loc in locations}
-
-        return [map_location_dto_from_entity(locations_by_id.get(k)) for k in keys]

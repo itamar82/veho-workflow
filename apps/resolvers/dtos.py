@@ -28,13 +28,13 @@ class WarehouseDto(BaseModel):
 
 class LocationDto(BaseModel):
     id: str
-    warehouse_id: str
+    warehouse: WarehouseDto
     zone: str
 
 
 class PackageDto(BaseModel):
     id: str
-    warehouse_id: str
+    warehouse: WarehouseDto
     received_timestamp: datetime | None
     status: str
     pallet_id: str
@@ -42,8 +42,8 @@ class PackageDto(BaseModel):
 
 class PalletDto(BaseModel):
     id: str
-    warehouse_id: str
-    location_id: str | None
+    warehouse: WarehouseDto
+    location: LocationDto
     stowed_timestamp: datetime | None
     packages: list[PackageDto] = Field(default_factory=list)
 
@@ -51,7 +51,7 @@ class PalletDto(BaseModel):
 def map_package_dto_from_entity(entity: Package) -> PackageDto:
     return PackageDto(
         id=entity.id,
-        warehouse_id=entity.warehouse_id,
+        warehouse=map_warehouse_dto_from_entity(entity.warehouse),
         received_timestamp=entity.received_timestamp,
         status=entity.status,
         pallet_id=entity.pallet.id if entity.pallet else None,
@@ -61,9 +61,9 @@ def map_package_dto_from_entity(entity: Package) -> PackageDto:
 def map_pallet_dto_from_entity(entity: Pallet) -> PalletDto:
     return PalletDto(
         id=entity.id,
-        warehouse_id=entity.warehouse_id,
+        warehouse=map_warehouse_dto_from_entity(entity.warehouse),
         stowed_timestamp=entity.stowed_timestamp,
-        location_id=entity.location_id,
+        location=map_location_dto_from_entity(entity.location),
     )
 
 
@@ -72,4 +72,8 @@ def map_warehouse_dto_from_entity(entity: Warehouse) -> WarehouseDto:
 
 
 def map_location_dto_from_entity(entity: Location) -> LocationDto:
-    return LocationDto(id=entity.id, warehouse_id=entity.warehouse_id, zone=entity.zone)
+    return LocationDto(
+        id=entity.id,
+        warehouse=map_warehouse_dto_from_entity(entity.warehouse),
+        zone=entity.zone,
+    )

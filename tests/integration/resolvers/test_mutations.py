@@ -10,13 +10,13 @@ class TestMutationResolvers:
         warehouse = Warehouse(id="test_wh", name="Test Warehouse")
         package1 = Package(
             id="test_pkg1",
-            warehouse_id="test_wh",
+            warehouse=warehouse,
             status=PackageStatus.PENDING,
             received_timestamp=None,
         )
         package2 = Package(
             id="test_pkg2",
-            warehouse_id="test_wh",
+            warehouse=warehouse,
             status=PackageStatus.PENDING,
             received_timestamp=None,
         )
@@ -98,7 +98,7 @@ class TestMutationResolvers:
         warehouse = Warehouse(id="test_wh2", name="Test Warehouse 2")
         package = Package(
             id="test_pkg_inducted",
-            warehouse_id="test_wh2",
+            warehouse=warehouse,
             status=PackageStatus.INDUCTED,
             received_timestamp=datetime.now(UTC),
         )
@@ -139,16 +139,16 @@ class TestMutationResolvers:
 
         # Create test data
         warehouse = Warehouse(id="test_wh3", name="Test Warehouse 3")
-        location = Location(id="loc1", warehouse_id=warehouse.id, zone="RECEIVING")
+        location = Location(id="loc1", warehouse=warehouse, zone="RECEIVING")
         package1 = Package(
             id="test_pkg_stow1",
-            warehouse_id="test_wh3",
+            warehouse=warehouse,
             status=PackageStatus.INDUCTED,
             received_timestamp=datetime.now(UTC),
         )
         package2 = Package(
             id="test_pkg_stow2",
-            warehouse_id="test_wh3",
+            warehouse=warehouse,
             status=PackageStatus.INDUCTED,
             received_timestamp=datetime.now(UTC),
         )
@@ -196,11 +196,11 @@ class TestMutationResolvers:
     def test_stow_packages_not_inducted(self, client, session):
         """Test stowing packages that haven't been inducted"""
         warehouse = Warehouse(id="test_wh4", name="Test Warehouse 4")
-        location = Location(id="loc1", warehouse_id=warehouse.id, zone="RECEIVING")
+        location = Location(id="loc1", warehouse=warehouse, zone="RECEIVING")
 
         package = Package(
             id="test_pkg_not_inducted",
-            warehouse_id="test_wh4",
+            warehouse=warehouse,
             status=PackageStatus.PENDING,
             received_timestamp=None,
         )
@@ -241,14 +241,14 @@ class TestMutationResolvers:
         from datetime import UTC, datetime
 
         warehouse = Warehouse(id="test_wh5", name="Test Warehouse 5")
-        location = Location(id="rec_loc1", warehouse_id=warehouse.id, zone="RECEIVING")
+        location = Location(id="rec_loc1", warehouse=warehouse, zone="RECEIVING")
 
         existing_pallet = Pallet(
-            id="existing_pallet", warehouse_id="test_wh5", location_id=location.id
+            id="existing_pallet", warehouse=warehouse, location=location
         )
         package = Package(
             id="test_pkg_stowed",
-            warehouse_id="test_wh5",
+            warehouse=warehouse,
             status=PackageStatus.STOWED,
             received_timestamp=datetime.now(UTC),
             pallet=existing_pallet,

@@ -2,7 +2,6 @@ from datetime import UTC, datetime
 from typing import Iterable
 
 from apps.db.entities import Package, PackageStatus, Pallet
-from apps.services.repository import WmsRepository
 
 
 def induct_packages(packages: Iterable[Package]):
@@ -16,14 +15,9 @@ def induct_packages(packages: Iterable[Package]):
         package.status = PackageStatus.INDUCTED
 
 
-def stow_packages(
-    pallet: Pallet, packages: Iterable[Package], repository: WmsRepository
-):
-    location = repository.load_location_by_id(
-        warehouse_id=pallet.warehouse_id, location_id=pallet.location_id
-    )
-    if not location or location.zone not in ["RECEIVING"]:
-        raise RuntimeError(f"Pallet {pallet.id} is not in receiving location")
+def stow_packages(pallet: Pallet, packages: Iterable[Package]):
+    if pallet.location.zone not in ["RECEIVING"]:
+        raise RuntimeError(f"Pallet {pallet.id} is not in a receiving zone")
 
     for package in packages:
         if not package.received_timestamp and package.status != PackageStatus.INDUCTED:
