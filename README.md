@@ -16,7 +16,8 @@ http://localhost:8000/graphql. Accessing with a browser will render a GraphiQL p
 * this implementation uses sqlite for data peristence located at [wms.db](./wms.db)
 * upon service start the db will be recreated and reseeded.
   * to prevent re-creation/re-seeding of the db, set the environment variable `SEED_DB` to `false` [here](https://github.com/itamar82/veho-workflow/blob/main/docker-compose.yaml#L5)
-
+  * packages `pkg_0-9` will be created in warehouse `wh_1`
+  * locations `loc1` and `loc2` are created in `wh_1`
 
 
 ### Tests
@@ -52,3 +53,59 @@ The [Architecture](./ARCHITECTURE.md) document contains more information about t
    5. Uses SQLite for the data persistence
    6. Idempotency (of mutations) was not included although this would be needed in a production system
 
+
+
+## Example Queries / Mutations
+
+```graphql
+
+query {
+  getPackagesByIds(warehouseId: "wh_1", packageIds: ["pkg_1"]) {
+    id
+    receivedTimestamp
+    status
+    warehouse {
+      name
+    }
+    pallet {
+      id
+      packages {
+        id
+        receivedTimestamp
+      }
+      location {
+        id
+        zone
+      }
+    }
+  }
+  getPalletsByLocation(warehouseId: "wh_1", locationId: "loc1") {
+    id
+    packages {
+      id
+      receivedTimestamp
+    }
+  }
+}
+
+```
+
+### Induct Mutation
+```graphql
+mutation {
+  inductPackages(packageInduction: {warehouseId:"wh_1", packageIds: ["pkg_1"]}) {
+    success,
+    message
+  }
+}
+```
+
+### Stow Mutation
+```graphql
+mutation {
+  stowPackages(packageStow: {warehouseId:"wh_1", palletId: "new-package", packageIds: ["pkg_1"]}) {
+    success,
+    message
+  }
+}
+```
