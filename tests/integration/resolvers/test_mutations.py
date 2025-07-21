@@ -1,4 +1,4 @@
-from apps.db.entities import Package, PackageStatus, Pallet, Warehouse
+from apps.db.entities import Location, Package, PackageStatus, Pallet, Warehouse
 
 
 class TestMutationResolvers:
@@ -139,6 +139,7 @@ class TestMutationResolvers:
 
         # Create test data
         warehouse = Warehouse(id="test_wh3", name="Test Warehouse 3")
+        location = Location(id="loc1", warehouse_id=warehouse.id, zone="RECEIVING")
         package1 = Package(
             id="test_pkg_stow1",
             warehouse_id="test_wh3",
@@ -152,7 +153,7 @@ class TestMutationResolvers:
             received_timestamp=datetime.now(UTC),
         )
 
-        session.add_all([warehouse, package1, package2])
+        session.add_all([warehouse, location, package1, package2])
         session.flush()
 
         mutation = """
@@ -195,6 +196,8 @@ class TestMutationResolvers:
     def test_stow_packages_not_inducted(self, client, session):
         """Test stowing packages that haven't been inducted"""
         warehouse = Warehouse(id="test_wh4", name="Test Warehouse 4")
+        location = Location(id="loc1", warehouse_id=warehouse.id, zone="RECEIVING")
+
         package = Package(
             id="test_pkg_not_inducted",
             warehouse_id="test_wh4",
@@ -202,7 +205,7 @@ class TestMutationResolvers:
             received_timestamp=None,
         )
 
-        session.add_all([warehouse, package])
+        session.add_all([warehouse, location, package])
         session.flush()
 
         mutation = """
@@ -238,8 +241,11 @@ class TestMutationResolvers:
         from datetime import UTC, datetime
 
         warehouse = Warehouse(id="test_wh5", name="Test Warehouse 5")
+        location = Location(id="rec_loc1", warehouse_id=warehouse.id, zone="RECEIVING")
 
-        existing_pallet = Pallet(id="existing_pallet", warehouse_id="test_wh5")
+        existing_pallet = Pallet(
+            id="existing_pallet", warehouse_id="test_wh5", location_id=location.id
+        )
         package = Package(
             id="test_pkg_stowed",
             warehouse_id="test_wh5",
@@ -248,7 +254,7 @@ class TestMutationResolvers:
             pallet=existing_pallet,
         )
 
-        session.add_all([warehouse, existing_pallet, package])
+        session.add_all([warehouse, location, existing_pallet, package])
         session.flush()
 
         mutation = """

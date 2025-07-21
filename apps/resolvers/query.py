@@ -39,3 +39,17 @@ def resolve_get_pallets_by_ids(
     )
 
     return [map_pallet_dto_from_entity(p) for p in pallets]
+
+
+@query_type.field("getPalletsByLocation")
+@convert_kwargs_to_snake_case
+def resolve_get_pallets_by_location(
+    _, info: GraphQLResolveInfo, warehouse_id: str, location_id: str
+):
+    repository = WmsRepository(session=info.context.session)
+
+    pallets = repository.load_pallets_by_location(
+        warehouse_id=warehouse_id, location_id=location_id
+    )
+
+    return [map_pallet_dto_from_entity(p) for p in pallets]

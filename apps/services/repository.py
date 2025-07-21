@@ -1,9 +1,9 @@
 from typing import Iterable, Sequence
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from apps.db.entities import Package, Pallet, Warehouse
+from apps.db.entities import Location, Package, Pallet, Warehouse
 
 
 class WmsRepository:
@@ -104,3 +104,60 @@ class WmsRepository:
         ).scalar_one_or_none()
 
         return pallets
+
+    def load_locations_by_ids(
+        self, warehouse_id: str, location_ids: Iterable[str]
+    ) -> Sequence[Location]:
+        locations = (
+            self.session.execute(
+                select(Location).where(
+                    Location.warehouse_id == warehouse_id,
+                    Location.id.in_(location_ids),
+                )
+            )
+            .scalars()
+            .fetchall()
+        )
+
+        return locations
+
+    def get_locations_by_zone(self, warehouse_id: str, zone: str) -> Sequence[Location]:
+        locations = (
+            self.session.execute(
+                select(Location).where(
+                    Location.warehouse_id == warehouse_id,
+                    func.lower(Location.zone) == zone.lower(),
+                )
+            )
+            .scalars()
+            .fetchall()
+        )
+
+        return locations
+
+    def load_pallets_by_location(
+        self, warehouse_id: str, location_id: str
+    ) -> Sequence[Pallet]:
+        pallets = (
+            self.session.execute(
+                select(Pallet).where(
+                    Pallet.c.warehouse_id == warehouse_id,
+                    Pallet.c.location_id == location_id,
+                )
+            )
+            .scalars()
+            .fetchall()
+        )
+
+        return pallets
+
+    def load_location_by_id(
+        self, warehouse_id: str, location_id: str
+    ) -> Location | None:
+        location = self.session.execute(
+            select(Location).where(
+                Location.warehouse_id == warehouse_id, Location.id == location_id
+            )
+        ).scalar_one_or_none()
+
+        return location

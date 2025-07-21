@@ -10,11 +10,19 @@ class Warehouse:
 
 
 @dataclass
+class Location:
+    id: str
+    warehouse_id: str
+    zone: str
+
+
+@dataclass
 class Pallet:
     id: str
     warehouse_id: str
+    location_id: str
     packages: list["Package"] = field(default_factory=list)
-    location_id: str | None = None
+    stowed_timestamp: datetime | None = None
 
 
 class PackageStatus(StrEnum):

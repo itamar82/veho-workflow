@@ -1,13 +1,21 @@
+scalar DateTime
+
 
 type Warehouse {
     id: String!
     name: String!
 }
 
+type Location {
+    id: String!
+    warehouse: Warehouse!
+    zone: String!
+}
+
 type Package {
     id: String!
     warehouse: Warehouse!
-    receivedTimestamp: String
+    receivedTimestamp: DateTime
     status: String!
     pallet: Pallet
 }
@@ -15,13 +23,18 @@ type Package {
 type Pallet {
     id: String!
     warehouse: Warehouse!
+    stowedTimestamp: DateTime
     packages: [Package!]!
+    location: Location!
 }
+
+
 
 
 type Query {
     getPackagesByIds(warehouseId: String!, packageIds: [String!]!): [Package!]!
     getPalletsByIds(warehouseId: String!, palletIds: [String!]!): [Pallet!]!
+    getPalletsByLocation(warehouseId: String!, locationId: String!): [Pallet!]!
 }
 
 

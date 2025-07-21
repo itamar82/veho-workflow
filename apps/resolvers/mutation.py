@@ -64,12 +64,21 @@ def resolve_stow_packages_mutation(
         warehouse_id=package_stow.warehouse_id, pallet_id=package_stow.pallet_id
     )
     if not pallet:
-        # create pallet
+        # create pallet at default receive location
+        locations = repository.get_locations_by_zone(
+            warehouse_id=warehouse.id, zone="RECEIVING"
+        )
+        if not locations:
+            raise RuntimeError("No receiving locations found to stow")
+
         pallet = Pallet(
             id=package_stow.pallet_id,
             warehouse_id=package_stow.warehouse_id,
             packages=[],
+            location_id=locations[0].id,  # first location
         )
         info.context.session.add(pallet)
 
-    workflow_services.stow_packages(pallet=pallet, packages=packages)
+    workflow_services.stow_packages(
+        pallet=pallet, packages=packages, repository=repository
+    )

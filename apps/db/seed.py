@@ -3,7 +3,7 @@ import uuid
 from sqlalchemy import Engine, select
 from sqlalchemy.orm import Session
 
-from .entities import Package, Warehouse, PackageStatus
+from .entities import Package, PackageStatus, Warehouse
 
 
 def seed_db(engine: Engine):

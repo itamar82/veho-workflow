@@ -1,6 +1,6 @@
 import pytest
 
-from apps.db.entities import Package, PackageStatus, Pallet, Warehouse
+from apps.db.entities import Location, Package, PackageStatus, Pallet, Warehouse
 
 
 class TestQueryResolvers:
@@ -10,6 +10,9 @@ class TestQueryResolvers:
     def setup(self, session):
         warehouse = Warehouse(id="wh1", name="test")
         session.add(warehouse)
+
+        location = Location(id="loc1", warehouse_id=warehouse.id, zone="RECV")
+        session.add(location)
 
         packages = [
             Package(
@@ -25,7 +28,10 @@ class TestQueryResolvers:
         session.flush()
 
         pallet = Pallet(
-            id="pallet_1", warehouse_id=warehouse.id, packages=packages[0:5]
+            id="pallet_1",
+            warehouse_id=warehouse.id,
+            packages=packages[0:5],
+            location_id=location.id,
         )
         session.add(pallet)
         session.flush()

@@ -19,12 +19,20 @@ warehouse_table = Table(
     UniqueConstraint("name"),
 )
 
+locations_table = Table(
+    "locations",
+    metadata,
+    Column("id", String(30), primary_key=True),
+    Column("warehouse_id", String(30), ForeignKey("warehouses.id"), nullable=False),
+    Column("zone", String(30), nullable=False),
+)
+
 pallets_table = Table(
     "pallets",
     metadata,
     Column("id", String(30), primary_key=True),
     Column("warehouse_id", String(30), ForeignKey("warehouses.id"), nullable=False),
-    Column("location_id", String(30), nullable=True),
+    Column("location_id", String(30), ForeignKey("locations.id"), nullable=True),
     UniqueConstraint("warehouse_id", "id"),
 )
 

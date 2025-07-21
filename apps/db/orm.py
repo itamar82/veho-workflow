@@ -1,7 +1,13 @@
 from sqlalchemy.orm import registry, relationship
 
-from apps.db.entities import Package, Pallet, Warehouse
-from apps.db.schema import metadata, packages_table, pallets_table, warehouse_table
+from apps.db.entities import Location, Package, Pallet, Warehouse
+from apps.db.schema import (
+    locations_table,
+    metadata,
+    packages_table,
+    pallets_table,
+    warehouse_table,
+)
 
 mapper_registry = registry(metadata=metadata)
 
@@ -11,6 +17,16 @@ def initialize_mappers():
         Warehouse,
         warehouse_table,
         properties={"id": warehouse_table.c.id, "name": warehouse_table.c.name},
+    )
+
+    mapper_registry.map_imperatively(
+        Location,
+        locations_table,
+        properties={
+            "id": locations_table.c.id,
+            "warehouse_id": locations_table.c.warehouse_id,
+            "zone": locations_table.c.zone,
+        },
     )
 
     mapper_registry.map_imperatively(

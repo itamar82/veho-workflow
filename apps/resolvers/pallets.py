@@ -1,7 +1,11 @@
 from ariadne import ObjectType
 from graphql import GraphQLResolveInfo
 
-from apps.dataloaders import PackagesByPalletReferenceLoader, WarehouseReferenceLoader
+from apps.dataloaders import (
+    LocationReferenceDataLoader,
+    PackagesByPalletReferenceLoader,
+    WarehouseReferenceLoader,
+)
 from apps.resolvers.dtos import PalletDto
 from apps.services.repository import WmsRepository
 
@@ -34,4 +38,19 @@ async def resolve_package_warehouse(
 
     return await info.context[WarehouseReferenceLoader.CACHE_KEY()].load(
         representation.warehouse_id
+    )
+
+
+@pallet_type.field("location")
+async def resolve_pallet_location(representation: PalletDto, info: GraphQLResolveInfo):
+    if LocationReferenceDataLoader.CACHE_KEY() not in info.context:
+        info.context[
+            LocationReferenceDataLoader.CACHE_KEY()
+        ] = LocationReferenceDataLoader(
+            warehouse_id=representation.warehouse_id,
+            repository=WmsRepository(session=info.context.session),
+        )
+
+    return await info.context[LocationReferenceDataLoader.CACHE_KEY()].load(
+        representation.location_id
     )

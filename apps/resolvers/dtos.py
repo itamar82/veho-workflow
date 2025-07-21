@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
-from apps.db.entities import Package, Pallet, Warehouse
+from apps.db.entities import Location, Package, Pallet, Warehouse
 
 
 class ApiResponse(BaseModel):
@@ -26,6 +26,12 @@ class WarehouseDto(BaseModel):
     name: str
 
 
+class LocationDto(BaseModel):
+    id: str
+    warehouse_id: str
+    zone: str
+
+
 class PackageDto(BaseModel):
     id: str
     warehouse_id: str
@@ -37,6 +43,8 @@ class PackageDto(BaseModel):
 class PalletDto(BaseModel):
     id: str
     warehouse_id: str
+    location_id: str | None
+    stowed_timestamp: datetime | None
     packages: list[PackageDto] = Field(default_factory=list)
 
 
@@ -46,13 +54,22 @@ def map_package_dto_from_entity(entity: Package) -> PackageDto:
         warehouse_id=entity.warehouse_id,
         received_timestamp=entity.received_timestamp,
         status=entity.status,
-        pallet_id=entity.pallet_id,
+        pallet_id=entity.pallet.id if entity.pallet else None,
     )
 
 
 def map_pallet_dto_from_entity(entity: Pallet) -> PalletDto:
-    return PalletDto(id=entity.id, warehouse_id=entity.warehouse_id)
+    return PalletDto(
+        id=entity.id,
+        warehouse_id=entity.warehouse_id,
+        stowed_timestamp=entity.stowed_timestamp,
+        location_id=entity.location_id,
+    )
 
 
 def map_warehouse_dto_from_entity(entity: Warehouse) -> WarehouseDto:
     return WarehouseDto(id=entity.id, name=entity.name)
+
+
+def map_location_dto_from_entity(entity: Location) -> LocationDto:
+    return LocationDto(id=entity.id, warehouse_id=entity.warehouse_id, zone=entity.zone)
