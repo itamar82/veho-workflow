@@ -43,7 +43,7 @@ The [Architecture](./ARCHITECTURE.md) document contains more information about t
    2. In a more production-like WMS there would be additional considerations and layers required (Location Hierarchy [zone, aisle, shelf, etc], Containers, Inventory, Tasks, Transactions, Purchase Orders, Receipts...)
    3. Leveraged async dataloader pattern to avoid the N+1 problem that GraphQL is notorious for.
    4. Wrap all requests in a db transaction.
-   4. Due to the simplicity of the code, integration tests of the graphql mutations/queries is sufficient
+   4. Due to the simplicity of the code, integration tests of the graphql mutations/queries is sufficient (80% coverage)
    5. Uses SQLite for the data persistence
    6. Idempotency (of mutations) was not included although this would be needed in a production system
 
