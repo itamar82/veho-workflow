@@ -74,6 +74,7 @@ async def lifespan(app: FastAPI):
         orm.mapper_registry.metadata.create_all(bind=db.engine, checkfirst=True)
 
         # from apps.db.seed import seed_db
+        #
         # seed_db(db.engine)
 
         yield
