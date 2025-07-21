@@ -9,6 +9,9 @@ package_type = ObjectType("Package")
 
 @package_type.field("pallet")
 async def resolve_package_pallet(representation: PackageDto, info: GraphQLResolveInfo):
+    if not representation.pallet_id:
+        return None
+
     if PalletReferenceLoader.CACHE_KEY() not in info.context:
         info.context[PalletReferenceLoader.CACHE_KEY()] = PalletReferenceLoader(
             warehouse_id=representation.warehouse.id,

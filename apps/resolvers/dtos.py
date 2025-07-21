@@ -37,7 +37,7 @@ class PackageDto(BaseModel):
     warehouse: WarehouseDto
     received_timestamp: datetime | None
     status: str
-    pallet_id: str
+    pallet_id: str | None
 
 
 class PalletDto(BaseModel):

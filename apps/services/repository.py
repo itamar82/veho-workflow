@@ -125,8 +125,8 @@ class WmsRepository:
         pallets = (
             self.session.execute(
                 select(Pallet).where(
-                    Pallet.c.warehouse_id == warehouse_id,
-                    Pallet.c.location_id == location_id,
+                    Pallet.warehouse_id == warehouse_id,
+                    func.lower(Pallet.location_id) == location_id.lower(),
                 )
             )
             .scalars()
