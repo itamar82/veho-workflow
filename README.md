@@ -1,13 +1,13 @@
 # Veho WMS
 ## Development
 
-To work on this app,
-please install and configure docker on your computer.
+To work on this app, please install and configure docker on your computer.
 
 
 ### To run this locally
 
 ```bash
+docker compose pull
 docker compose up devbox
 ```
 This starts up an HTTP server on port 8000 with graphql endpoint at
@@ -33,18 +33,17 @@ docker compose run lint
 
 ### Overall Design Notes
 
-- Requirements
-  1. Catch code pushes during specific time windows (14:00 - 16:00)
-  2. Catch team creation events with 'hacker' prefix
-  3. Catch repository lifetime < 10 minutes
-- Assumptions
-  1. Needs to be idempotent (avoid reprocessing previously sent hooks/payloads)
-  2. No need for HMAC authentication (validate payload originated from github)
-- Design
-  1. Synchronous webhook ingestion and persistence
-  2. Async event analysis with ability to look back at aggregates
-  3. Extensible to organization and repository specific analyzers
-  4. Extensible to further notifiers (only logging for now)
-  5. Mixed use of functional and OOP. OOP is nice but over time is difficult to refactor.
-  6. Preference on composition over inheritance where possible.
-  7. If I had more time I think an event-streaming framework (message queue based) could make more sense here
+The [Architecture](./ARCHITECTURE.md) document contains more information about the overall design/structure of the codebase.
+
+
+#### General Design Approach
+1. Used python for this implementation since I'm currently more familiar with it and the implementation intricacies for GraphQL.
+   2. I'm fully confident that I could arrive at a similar or better implementation with NodeJS given additional time.
+2. Kept the overall design simple and to the point of the exercise
+   2. In a more production-like WMS there would be additional considerations and layers required (Location Hierarchy [zone, aisle, shelf, etc], Containers, Inventory, Tasks, Transactions, Purchase Orders, Receipts...)
+   3. Leveraged async dataloader pattern to avoid the N+1 problem that GraphQL is notorious for.
+   4. Wrap all requests in a db transaction.
+   4. Due to the simplicity of the code, integration tests of the graphql mutations/queries is sufficient
+   5. Uses SQLite for the data persistence
+   6. Idempotency (of mutations) was not included although this would be needed in a production system
+
