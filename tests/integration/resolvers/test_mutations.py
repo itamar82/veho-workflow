@@ -35,8 +35,8 @@ class TestMutationResolvers:
 
         variables = {
             "packageInduction": {
-                "warehouseId": "test_wh",
-                "packageIds": ["test_pkg1", "test_pkg2"],
+                "warehouseId": warehouse.id,
+                "packageIds": [p.id for p in [package1, package2]],
             }
         }
 
@@ -117,8 +117,8 @@ class TestMutationResolvers:
 
         variables = {
             "packageInduction": {
-                "warehouseId": "test_wh2",
-                "packageIds": ["test_pkg_inducted"],
+                "warehouseId": warehouse.id,
+                "packageIds": [package.id],
             }
         }
 
@@ -167,9 +167,9 @@ class TestMutationResolvers:
 
         variables = {
             "packageStow": {
-                "warehouseId": "test_wh3",
+                "warehouseId": warehouse.id,
                 "palletId": "test_pallet",
-                "packageIds": ["test_pkg_stow1", "test_pkg_stow2"],
+                "packageIds": [p.id for p in [package1, package2]],
             }
         }
 
@@ -219,9 +219,9 @@ class TestMutationResolvers:
 
         variables = {
             "packageStow": {
-                "warehouseId": "test_wh4",
+                "warehouseId": warehouse.id,
                 "palletId": "test_pallet2",
-                "packageIds": ["test_pkg_not_inducted"],
+                "packageIds": [package.id],
             }
         }
 
@@ -268,9 +268,9 @@ class TestMutationResolvers:
 
         variables = {
             "packageStow": {
-                "warehouseId": "test_wh5",
+                "warehouseId": warehouse.id,
                 "palletId": "new_pallet",
-                "packageIds": ["test_pkg_stowed"],
+                "packageIds": [package.id],
             }
         }
 
@@ -284,3 +284,49 @@ class TestMutationResolvers:
         response = result["data"]["stowPackages"]
         assert response["success"] is False
         assert "already stowed in another pallet" in response["message"]
+
+    def test_stow_packages_fails_given_pallet_not_in_receiving_zone(
+        self, client, session
+    ):
+        """Test stowing packages already stowed in another pallet"""
+
+        warehouse = Warehouse(id="test_wh5", name="Test Warehouse 5")
+        location = Location(id="rec_loc1", warehouse=warehouse, zone="STORAGE")
+
+        existing_pallet = Pallet(
+            id="existing_pallet", warehouse=warehouse, location=location
+        )
+        package = Package(
+            id="test_pkg_stowed", warehouse=warehouse, status=PackageStatus.INDUCTED
+        )
+
+        session.add_all([warehouse, location, existing_pallet, package])
+        session.flush()
+
+        mutation = """
+        mutation StowPackages($packageStow: PackageStowInput!) {
+            stowPackages(packageStow: $packageStow) {
+                success
+                message
+            }
+        }
+        """
+
+        variables = {
+            "packageStow": {
+                "warehouseId": warehouse.id,
+                "palletId": existing_pallet.id,
+                "packageIds": [package.id],
+            }
+        }
+
+        response = client.post(
+            "/graphql", json={"query": mutation, "variables": variables}
+        )
+        assert response.status_code == 200
+
+        result = response.json()
+        assert "data" in result
+        response = result["data"]["stowPackages"]
+        assert response["success"] is False
+        assert "is not in a receiving zone" in response["message"]
