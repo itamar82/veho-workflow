@@ -1,0 +1,16 @@
+# global
+pydantic~=2.5
+pydantic-collections~=0.5
+sqlalchemy~=2.0.41
+
+# fastapi
+fastapi~=0.109
+gunicorn==23.0.0
+uvicorn~=0.35
+ariadne==0.25
+aiodataloader==0.4.2
+graphql-core==3.2.5
+sqlmodel==0.0.24
+
+
+

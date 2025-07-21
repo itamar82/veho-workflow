@@ -1,0 +1,50 @@
+
+type Warehouse {
+    id: String!
+    name: String!
+}
+
+type Package {
+    id: String!
+    warehouse: Warehouse!
+    receivedTimestamp: String
+    status: String!
+    pallet: Pallet
+}
+
+type Pallet {
+    id: String!
+    warehouse: Warehouse!
+    packages: [Package!]!
+}
+
+
+type Query {
+    getPackagesByIds(warehouseId: String!, packageIds: [String!]!): [Package!]!
+    getPalletsByIds(warehouseId: String!, palletIds: [String!]!): [Pallet!]!
+}
+
+
+
+
+input PackageInductionInput {
+    warehouseId: String!
+    packageIds: [String!]!
+}
+
+input PackageStowInput {
+    warehouseId: String!
+    palletId: String!
+    packageIds: [String!]!
+}
+
+type ApiResponse {
+    success: Boolean!
+    message: String
+}
+
+type Mutation {
+    inductPackages(packageInduction: PackageInductionInput!): ApiResponse!
+    stowPackages(packageStow: PackageStowInput!): ApiResponse!
+}
+

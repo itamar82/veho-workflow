@@ -1,0 +1,280 @@
+from apps.db.entities import Package, PackageStatus, Pallet, Warehouse
+
+
+class TestMutationResolvers:
+    """Integration tests for mutation resolvers"""
+
+    def test_induct_packages_success(self, client, session):
+        """Test successful package induction"""
+        # First, create test packages
+        warehouse = Warehouse(id="test_wh", name="Test Warehouse")
+        package1 = Package(
+            id="test_pkg1",
+            warehouse_id="test_wh",
+            status=PackageStatus.PENDING,
+            received_timestamp=None,
+        )
+        package2 = Package(
+            id="test_pkg2",
+            warehouse_id="test_wh",
+            status=PackageStatus.PENDING,
+            received_timestamp=None,
+        )
+
+        session.add_all([warehouse, package1, package2])
+        session.flush()
+
+        mutation = """
+        mutation InductPackages($packageInduction: PackageInductionInput!) {
+            inductPackages(packageInduction: $packageInduction) {
+                success
+                message
+            }
+        }
+        """
+
+        variables = {
+            "packageInduction": {
+                "warehouseId": "test_wh",
+                "packageIds": ["test_pkg1", "test_pkg2"],
+            }
+        }
+
+        response = client.post(
+            "/graphql", json={"query": mutation, "variables": variables}
+        )
+        assert response.status_code == 200
+
+        result = response.json()
+        assert "data" in result
+        response = result["data"]["inductPackages"]
+        assert response["success"] is True
+
+        # Verify packages were updated
+        updated_packages = (
+            session.query(Package)
+            .filter(Package.id.in_(["test_pkg1", "test_pkg2"]))
+            .all()
+        )
+
+        for pkg in updated_packages:
+            assert pkg.status == PackageStatus.INDUCTED.value
+            assert pkg.received_timestamp is not None
+
+    def test_induct_packages_warehouse_not_found(self, client):
+        """Test induction with non-existent warehouse"""
+        mutation = """
+        mutation InductPackages($packageInduction: PackageInductionInput!) {
+            inductPackages(packageInduction: $packageInduction) {
+                success
+                message
+            }
+        }
+        """
+
+        variables = {
+            "packageInduction": {
+                "warehouseId": "nonexistent_wh",
+                "packageIds": ["pkg1", "pkg2"],
+            }
+        }
+
+        response = client.post(
+            "/graphql", json={"query": mutation, "variables": variables}
+        )
+        assert response.status_code == 200
+
+        result = response.json()
+        assert "data" in result
+        response = result["data"]["inductPackages"]
+        assert response["success"] is False
+        assert "Warehouse nonexistent_wh not found" in response["message"]
+
+    def test_induct_packages_already_inducted(self, client, session):
+        """Test induction of already inducted packages"""
+        from datetime import UTC, datetime
+
+        # Create already inducted package
+        warehouse = Warehouse(id="test_wh2", name="Test Warehouse 2")
+        package = Package(
+            id="test_pkg_inducted",
+            warehouse_id="test_wh2",
+            status=PackageStatus.INDUCTED,
+            received_timestamp=datetime.now(UTC),
+        )
+
+        session.add_all([warehouse, package])
+        session.flush()
+
+        mutation = """
+        mutation InductPackages($packageInduction: PackageInductionInput!) {
+            inductPackages(packageInduction: $packageInduction) {
+                success
+                message
+            }
+        }
+        """
+
+        variables = {
+            "packageInduction": {
+                "warehouseId": "test_wh2",
+                "packageIds": ["test_pkg_inducted"],
+            }
+        }
+
+        response = client.post(
+            "/graphql", json={"query": mutation, "variables": variables}
+        )
+        assert response.status_code == 200
+
+        result = response.json()
+        assert "data" in result
+        response = result["data"]["inductPackages"]
+        assert response["success"] is False
+        assert "already inducted" in response["message"]
+
+    def test_stow_packages_success(self, client, session):
+        """Test successful package stowing"""
+        from datetime import UTC, datetime
+
+        # Create test data
+        warehouse = Warehouse(id="test_wh3", name="Test Warehouse 3")
+        package1 = Package(
+            id="test_pkg_stow1",
+            warehouse_id="test_wh3",
+            status=PackageStatus.INDUCTED,
+            received_timestamp=datetime.now(UTC),
+        )
+        package2 = Package(
+            id="test_pkg_stow2",
+            warehouse_id="test_wh3",
+            status=PackageStatus.INDUCTED,
+            received_timestamp=datetime.now(UTC),
+        )
+
+        session.add_all([warehouse, package1, package2])
+        session.flush()
+
+        mutation = """
+        mutation StowPackages($packageStow: PackageStowInput!) {
+            stowPackages(packageStow: $packageStow) {
+                success
+                message
+            }
+        }
+        """
+
+        variables = {
+            "packageStow": {
+                "warehouseId": "test_wh3",
+                "palletId": "test_pallet",
+                "packageIds": ["test_pkg_stow1", "test_pkg_stow2"],
+            }
+        }
+
+        response = client.post(
+            "/graphql", json={"query": mutation, "variables": variables}
+        )
+        assert response.status_code == 200
+
+        result = response.json()
+        assert "data" in result
+        response = result["data"]["stowPackages"]
+        assert response["success"] is True
+
+        # Verify pallet was created and packages were assigned
+        pallet = session.query(Pallet).filter(Pallet.id == "test_pallet").first()
+
+        assert pallet is not None
+        assert len(pallet.packages) == 2
+
+        package_ids = [pkg.id for pkg in pallet.packages]
+        assert "test_pkg_stow1" in package_ids
+        assert "test_pkg_stow2" in package_ids
+
+    def test_stow_packages_not_inducted(self, client, session):
+        """Test stowing packages that haven't been inducted"""
+        warehouse = Warehouse(id="test_wh4", name="Test Warehouse 4")
+        package = Package(
+            id="test_pkg_not_inducted",
+            warehouse_id="test_wh4",
+            status=PackageStatus.PENDING,
+            received_timestamp=None,
+        )
+
+        session.add_all([warehouse, package])
+        session.flush()
+
+        mutation = """
+        mutation StowPackages($packageStow: PackageStowInput!) {
+            stowPackages(packageStow: $packageStow) {
+                success
+                message
+            }
+        }
+        """
+
+        variables = {
+            "packageStow": {
+                "warehouseId": "test_wh4",
+                "palletId": "test_pallet2",
+                "packageIds": ["test_pkg_not_inducted"],
+            }
+        }
+
+        response = client.post(
+            "/graphql", json={"query": mutation, "variables": variables}
+        )
+        assert response.status_code == 200
+
+        result = response.json()
+        assert "data" in result
+        response = result["data"]["stowPackages"]
+        assert response["success"] is False
+        assert "has not been inducted" in response["message"]
+
+    def test_stow_packages_already_stowed(self, client, session):
+        """Test stowing packages already stowed in another pallet"""
+        from datetime import UTC, datetime
+
+        warehouse = Warehouse(id="test_wh5", name="Test Warehouse 5")
+
+        existing_pallet = Pallet(id="existing_pallet", warehouse_id="test_wh5")
+        package = Package(
+            id="test_pkg_stowed",
+            warehouse_id="test_wh5",
+            status=PackageStatus.STOWED,
+            received_timestamp=datetime.now(UTC),
+            pallet=existing_pallet,
+        )
+
+        session.add_all([warehouse, existing_pallet, package])
+        session.flush()
+
+        mutation = """
+        mutation StowPackages($packageStow: PackageStowInput!) {
+            stowPackages(packageStow: $packageStow) {
+                success
+                message
+            }
+        }
+        """
+
+        variables = {
+            "packageStow": {
+                "warehouseId": "test_wh5",
+                "palletId": "new_pallet",
+                "packageIds": ["test_pkg_stowed"],
+            }
+        }
+
+        response = client.post(
+            "/graphql", json={"query": mutation, "variables": variables}
+        )
+        assert response.status_code == 200
+
+        result = response.json()
+        assert "data" in result
+        response = result["data"]["stowPackages"]
+        assert response["success"] is False
+        assert "already stowed in another pallet" in response["message"]
